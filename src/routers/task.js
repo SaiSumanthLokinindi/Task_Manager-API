@@ -2,14 +2,17 @@ const express = require("express");
 const router = express.Router();
 const Task = require("../models/task");
 const auth = require("../middleware/auth");
+const filterData = require("../utils/taskUtils");
+
+const filterFields = ["repeating", "owner", "description", "__v"];
 
 router.post("/task", auth, async (req, res) => {
   const task = new Task({ ...req.body, owner: req.user._id });
-  console.log(task);
   try {
     await task.save();
-    res.send(task);
+    res.send(filterData(filterFields, task["_doc"]));
   } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
