@@ -10,7 +10,13 @@ router.post("/user", async (req, res) => {
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
   } catch (e) {
-    res.status(400).send(e);
+    let error = { message: "something went wrong" };
+    if (e.code === 11000) {
+      error = { code: "SUE", message: "email already exists" };
+    } else if (e.errors?.password) {
+      error = { code: "SIP", message: "invalid password" };
+    }
+    res.status(400).send(error);
   }
 });
 
@@ -23,8 +29,7 @@ router.post("/user/login", async (req, res) => {
     const token = await user.generateAuthToken();
     res.send({ user, token });
   } catch (e) {
-    console.log(e);
-    res.status(400).send(e);
+    res.status(400).send({ code: e.cause.code, message: e.message });
   }
 });
 
