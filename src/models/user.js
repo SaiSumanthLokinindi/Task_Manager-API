@@ -46,10 +46,8 @@ userSchema.virtual("tasks", {
 
 userSchema.methods.toJSON = function () {
   const user = this;
-  const userObject = user.toObject();
-  delete userObject.password;
-  delete userObject.tokens;
-  return userObject;
+  const { name, email } = user.toObject();
+  return { name, email };
 };
 
 //Hash the plain text password before saving
@@ -70,7 +68,9 @@ userSchema.pre("remove", async function (next) {
 
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+    expiresIn: "2d",
+  });
   user.tokens = user.tokens.concat({ token });
   await user.save();
   return token;

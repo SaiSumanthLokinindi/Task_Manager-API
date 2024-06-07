@@ -2,14 +2,21 @@ const mongoose = require("mongoose");
 
 const taskSchema = mongoose.Schema(
   {
+    label: {
+      type: String,
+      trim: true,
+      required: true,
+    },
     description: {
       type: String,
-      required: true,
       trim: true,
     },
     completed: {
       type: Boolean,
       default: false,
+    },
+    scheduleDate: {
+      type: Date,
     },
     deadline: {
       type: Date,
@@ -28,8 +35,7 @@ const taskSchema = mongoose.Schema(
       default: "general",
     },
     repeating: {
-      type: [Number],
-      default: [],
+      type: mongoose.Mixed,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
