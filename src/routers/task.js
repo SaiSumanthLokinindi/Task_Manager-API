@@ -32,8 +32,8 @@ router.get("/task", auth, async (req, res) => {
 /**
  * Returns combination of tasks for a particular day
  * Tasks that are scheduled for a date
- * Tasks that do not have scheduled date or general tasks
- * TODO: Tasks that are repetitive for a particular date
+ * Tasks that do not have scheduled date or general tasks and are not completed
+ * TODO: Tasks that are recurring for a particular date
  */
 router.get("/task/myday", auth, async (req, res) => {
   try {
@@ -74,11 +74,14 @@ router.get("/task/:id", auth, async (req, res) => {
 router.patch("/task/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
-    "description",
-    "completed",
-    "createdAt",
     "category",
+    "createdAt",
     "deadline",
+    "description",
+    "label",
+    "priority",
+    "repeating",
+    "status",
   ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)

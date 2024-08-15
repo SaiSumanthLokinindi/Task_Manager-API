@@ -1,5 +1,16 @@
 const mongoose = require("mongoose");
 
+const StatusSchema = mongoose.Schema({
+  completed: {
+    type: Boolean,
+    default: false,
+  },
+  completedOn: {
+    type: Date,
+    default: null,
+  },
+});
+
 const taskSchema = mongoose.Schema(
   {
     label: {
@@ -11,10 +22,7 @@ const taskSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
-    completed: {
-      type: Boolean,
-      default: false,
-    },
+    status: StatusSchema,
     scheduleDate: {
       type: Date,
     },
