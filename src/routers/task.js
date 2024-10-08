@@ -9,7 +9,9 @@ router.post("/task", auth, async (req, res) => {
   try {
     await task.save();
     res.send(
-      taskUtils.filterData(["owner", "description", "__v"], task["_doc"])
+      taskUtils.getTaskData(
+        taskUtils.filterData(["owner", "__v"], task["_doc"])
+      )
     );
   } catch (e) {
     console.log(e);
@@ -75,12 +77,11 @@ router.patch("/task/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
     "category",
-    "createdAt",
-    "deadline",
+    "dueDate",
     "description",
     "label",
     "priority",
-    "repeating",
+    "scheduleDate",
     "status",
   ];
   const isValidOperation = updates.every((update) =>

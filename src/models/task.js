@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const taskUtils = require("../utils/taskUtils");
 
 const StatusSchema = mongoose.Schema({
   completed: {
@@ -26,11 +27,11 @@ const taskSchema = mongoose.Schema(
     scheduleDate: {
       type: Date,
     },
-    deadline: {
+    dueDate: {
       type: Date,
       validate(value) {
         if (new Date(value) < new Date())
-          throw new Error("Deadline cannot be in the past");
+          throw new Error("due date cannot be in the past");
       },
     },
     category: {
@@ -42,9 +43,6 @@ const taskSchema = mongoose.Schema(
       enum: ["critical", "high", "medium", "low", "general"],
       default: "general",
     },
-    repeating: {
-      type: mongoose.Mixed,
-    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -55,6 +53,11 @@ const taskSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+taskSchema.methods.toJSON = function () {
+  const task = this;
+  return taskUtils.getTaskData(task.toObject());
+};
 
 const Task = mongoose.model("Task", taskSchema);
 
