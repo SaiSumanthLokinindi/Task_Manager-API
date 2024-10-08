@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Task = require("../models/task");
+const Task = require("../models/taskModel");
 const auth = require("../middleware/auth");
 const taskUtils = require("../utils/taskUtils");
 
@@ -14,7 +14,6 @@ router.post("/task", auth, async (req, res) => {
       )
     );
   } catch (e) {
-    console.log(e);
     res.status(400).send(e);
   }
 });
@@ -55,7 +54,6 @@ router.get("/task/myday", auth, async (req, res) => {
     if (!tasks) return res.status(404).send();
     res.send(tasks);
   } catch (e) {
-    console.log(e);
     res.status(500).send(e);
   }
 });
@@ -97,9 +95,7 @@ router.patch("/task/:id", auth, async (req, res) => {
     if (!task) return res.status(404).send();
     updates.forEach((update) => {
       task[update] = req.body[update];
-      console.log(task[update]);
     });
-    console.log(task);
     await task.save();
     res.send(task);
   } catch (e) {
