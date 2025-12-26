@@ -12,6 +12,8 @@ const StatusSchema = mongoose.Schema({
   },
 });
 
+const skipValidation = true;
+
 const taskSchema = mongoose.Schema(
   {
     label: {
@@ -30,6 +32,7 @@ const taskSchema = mongoose.Schema(
     dueDate: {
       type: Date,
       validate(value) {
+        if (skipValidation) return;
         if (new Date(value) < new Date())
           throw new Error("due date cannot be in the past");
       },

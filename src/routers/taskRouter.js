@@ -58,6 +58,43 @@ router.get("/task/myday", auth, async (req, res) => {
   }
 });
 
+/**
+ * Returns tasks that are overdue as of today
+ */
+router.get("/task/overdue", auth, async (req, res) => {
+  try {
+    const overdueTasks = await Task.find({
+      owner: req.user._id,
+      dueDate: { $lt: taskUtils.getTodayDate() },
+      "status.completed": false,
+    });
+
+    res.status(200).send(overdueTasks);
+  } catch (e) {
+    res.status(500);
+  }
+});
+
+/**
+ * Returns tasks that are upcoming within a week from today
+ */
+router.get("/task/upcoming", auth, async (req, res) => {
+  try {
+    const upcomingTasks = await Task.find({
+      owner: req.user._id,
+      scheduleDate: {
+        $gt: taskUtils.getTodayDate(),
+        $lte: taskUtils.getDateAfterAWeek(),
+      },
+    });
+    res.status(200).send(upcomingTasks);
+  } catch (e) {
+    res.status(500).send({
+      error: e && e.message ? e.message : "Internal Server Error",
+    });
+  }
+});
+
 router.get("/task/:id", auth, async (req, res) => {
   try {
     const task = await Task.findOne({

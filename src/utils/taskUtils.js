@@ -8,9 +8,15 @@ const utils = {
   },
   getTodayDate: () => {
     const date = new Date();
-    return new Date(
-      `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
-    ).toISOString();
+    date.setHours(0, 0, 0, 0);
+    return date.toISOString();
+  },
+
+  getDateAfterAWeek: () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    date.setHours(0, 0, 0, 0);
+    return date.toISOString();
   },
 
   getTaskData: (task) => {
