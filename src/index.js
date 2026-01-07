@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Manually increasing latency for testing purposes
 app.use(function (req, res, next) {
-  setTimeout(next, 2000);
+  setTimeout(next, 1000);
 });
 
 app.use(userRouter);

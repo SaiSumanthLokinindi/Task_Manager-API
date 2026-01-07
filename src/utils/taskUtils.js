@@ -30,7 +30,7 @@ const utils = {
       createdOn,
       lastUpdatedOn,
       category: task.category,
-      priority: task.category,
+      priority: task.priority,
       status: task.status
         ? {
             completed: task.status?.completed,
