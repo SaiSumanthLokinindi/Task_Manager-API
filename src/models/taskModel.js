@@ -43,7 +43,7 @@ const taskSchema = mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: ["critical", "high", "medium", "low"],
+      enum: [0, 1, 2, 3],
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
