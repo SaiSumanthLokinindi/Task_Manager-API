@@ -10,8 +10,8 @@ router.post("/task", auth, async (req, res) => {
     await task.save();
     res.send(
       taskUtils.getTaskData(
-        taskUtils.filterData(["owner", "__v"], task["_doc"])
-      )
+        taskUtils.filterData(["owner", "__v"], task["_doc"]),
+      ),
     );
   } catch (e) {
     res.status(400).send(e);
@@ -119,9 +119,21 @@ router.patch("/task/:id", auth, async (req, res) => {
     "scheduleDate",
     "status",
   ];
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
+
+  let isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update),
   );
+
+  if (req.body.status && req.body.status.hasOwnProperty("completedOn")) {
+    isValidOperation = false;
+  } else if (req.body.status && req.body.status.hasOwnProperty("completed")) {
+    if (req.body.status.completed === true) {
+      req.body.status.completedOn = new Date();
+    } else {
+      req.body.status.completedOn = null;
+    }
+  }
+
   if (!isValidOperation)
     return res.status(400).send({ error: "Invalid Updates!" });
   try {
