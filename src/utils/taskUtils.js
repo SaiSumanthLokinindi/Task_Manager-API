@@ -29,7 +29,7 @@ const utils = {
       id,
       createdOn,
       lastUpdatedOn,
-      category: task.category,
+      tags: task.tags,
       priority: task.priority,
       status: task.status
         ? {

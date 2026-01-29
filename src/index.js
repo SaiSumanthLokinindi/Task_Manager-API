@@ -7,7 +7,7 @@ const taskRouter = require("./routers/taskRouter");
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://192.168.0.120:5173"],
+    origin: ["http://localhost:5173", "http://192.168.0.104:5173"],
   }),
 );
 const port = process.env.PORT;
@@ -22,6 +22,6 @@ app.use(function (req, res, next) {
 app.use(userRouter);
 app.use(taskRouter);
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log("Server is running on port", port);
 });

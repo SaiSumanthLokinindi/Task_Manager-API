@@ -111,7 +111,7 @@ router.get("/task/:id", auth, async (req, res) => {
 router.patch("/task/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
-    "category",
+    "tags",
     "dueDate",
     "description",
     "label",

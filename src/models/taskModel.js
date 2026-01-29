@@ -37,13 +37,17 @@ const taskSchema = mongoose.Schema(
           throw new Error("due date cannot be in the past");
       },
     },
-    category: {
-      type: String,
-      default: "general",
+    tags: {
+      type: [String],
+      index: true,
+      default: [],
+      lowercase: true,
+      trim: true,
     },
     priority: {
-      type: String,
-      enum: [0, 1, 2, 3],
+      type: Number,
+      enum: [0, 1, 2, 3, 4],
+      default: 0,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -53,13 +57,16 @@ const taskSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 taskSchema.methods.toJSON = function () {
   const task = this;
   return taskUtils.getTaskData(task.toObject());
 };
+
+taskSchema.index({ owner: 1, tags: 1 });
+taskSchema.index({ owner: 1, priority: 1 });
 
 const Task = mongoose.model("Task", taskSchema);
 
