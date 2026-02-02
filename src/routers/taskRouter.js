@@ -95,6 +95,22 @@ router.get("/task/upcoming", auth, async (req, res) => {
   }
 });
 
+router.get("/task", auth, async (req, res) => {
+  const query = { owner: req.user._id };
+
+  if (req.query.tag) {
+    query.tags = req.query.tag;
+  }
+
+  try {
+    const tasks = await Task.find(query, null, { sort: { createdAt: 1 } });
+    if (!tasks) return res.status(404).send();
+    res.send(tasks);
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
+
 router.get("/task/:id", auth, async (req, res) => {
   try {
     const task = await Task.findOne({

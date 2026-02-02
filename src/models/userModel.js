@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.virtual("tasks", {
@@ -51,20 +51,22 @@ userSchema.methods.toJSON = function () {
 };
 
 //Hash the plain text password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   const user = this;
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
-  next();
 });
 
 //Delete user tasks when user is removed
-userSchema.pre("remove", async function (next) {
-  const user = this;
-  await Task.deleteMany({ owner: user._id });
-  next();
-});
+userSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function () {
+    const user = this;
+    await Task.deleteMany({ owner: user._id });
+  },
+);
 
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
@@ -76,8 +78,8 @@ userSchema.methods.generateAuthToken = async function () {
   return token;
 };
 
-userSchema.statics.findByCredentials = async (email, password) => {
-  const user = await User.findOne({ email });
+userSchema.statics.findByCredentials = async function (email, password) {
+  const user = await this.findOne({ email });
   if (!user) throw new Error("user does not exist", { cause: { code: "LU" } });
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch)

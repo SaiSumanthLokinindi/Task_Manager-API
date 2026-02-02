@@ -24,12 +24,15 @@ router.post("/user/login", async (req, res) => {
   try {
     const user = await User.findByCredentials(
       req.body.email,
-      req.body.password
+      req.body.password,
     );
     const token = await user.generateAuthToken();
     res.send({ user, token });
   } catch (e) {
-    res.status(400).send({ code: e.cause.code, message: e.message });
+    res.status(400).send({
+      code: e.cause?.code || "ERROR",
+      message: e.message || "An unexpected error occurred",
+    });
   }
 });
 
@@ -63,7 +66,7 @@ router.patch("/user", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "email", "password"];
   const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
+    allowedUpdates.includes(update),
   );
   if (!isValidOperation)
     return res.status(400).send({ error: "Invalid Updates!" });
@@ -80,7 +83,7 @@ router.patch("/user", auth, async (req, res) => {
 
 router.delete("/user", auth, async (req, res) => {
   try {
-    await req.user.remove();
+    await req.user.deleteOne();
     res.send(req.user);
   } catch (e) {
     res.status(500).send(e);
