@@ -3,6 +3,7 @@ const cors = require("cors");
 require("./db/mongoose");
 const userRouter = require("./routers/userRouter");
 const taskRouter = require("./routers/taskRouter");
+const tagRouter = require("./routers/tagRouter");
 
 const app = express();
 app.use(
@@ -21,6 +22,7 @@ app.use(function (req, res, next) {
 
 app.use(userRouter);
 app.use(taskRouter);
+app.use(tagRouter);
 
 app.listen(port, "0.0.0.0", () => {
   console.log("Server is running on port", port);

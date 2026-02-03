@@ -39,11 +39,15 @@ const taskSchema = mongoose.Schema(
       },
     },
     tags: {
-      type: [String],
+      type: [
+        {
+          type: String,
+          lowercase: true,
+          trim: true,
+        },
+      ],
       index: true,
       default: [],
-      lowercase: true,
-      trim: true,
     },
     priority: {
       type: Number,
