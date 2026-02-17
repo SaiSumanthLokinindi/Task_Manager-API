@@ -40,8 +40,12 @@ router.get("/tags/suggest", auth, async (req, res) => {
 
     const tagSuggestions = [
       ...new Set([
-        ...myTags.map((tag) => tag.name),
-        ...globalTags.map((tag) => tag.name),
+        ...myTags.map((tag) => {
+          return { label: tag.name, id: tag._id };
+        }),
+        ...globalTags.map((tag) => {
+          return { label: tag.name, id: tag._id };
+        }),
       ]),
     ];
 
