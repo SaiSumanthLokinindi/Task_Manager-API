@@ -9,14 +9,20 @@ const utils = {
   getTodayDate: () => {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
-    return date.toISOString();
+    return date;
+  },
+
+  getEndOfToday: () => {
+    const date = new Date();
+    date.setHours(23, 59, 59, 999);
+    return date;
   },
 
   getDateAfterAWeek: () => {
     const date = new Date();
     date.setDate(date.getDate() + 7);
-    date.setHours(0, 0, 0, 0);
-    return date.toISOString();
+    date.setHours(23, 59, 59, 999);
+    return date;
   },
 
   getTaskData: (task) => {

@@ -18,17 +18,7 @@ router.post("/task", auth, async (req, res) => {
   }
 });
 
-router.get("/task", auth, async (req, res) => {
-  try {
-    const tasks = await Task.find({ owner: req.user._id }, null, {
-      sort: { createdAt: 1 },
-    });
-    if (!tasks) return res.status(404).send();
-    res.send(tasks);
-  } catch (e) {
-    res.status(500).send(e);
-  }
-});
+// Duplicate route removed (merged with line 98)
 
 /**
  * Returns combination of tasks for a particular day
@@ -44,14 +34,12 @@ router.get("/task/myday", auth, async (req, res) => {
         { scheduleDate: { $exists: false } },
         {
           scheduleDate: {
-            $exists: true,
-            $ne: null,
-            $eq: taskUtils.getTodayDate(),
+            $gte: taskUtils.getTodayDate(),
+            $lte: taskUtils.getEndOfToday(),
           },
         },
       ],
     });
-    if (!tasks) return res.status(404).send();
     res.send(tasks);
   } catch (e) {
     res.status(500).send(e);
@@ -71,7 +59,7 @@ router.get("/task/overdue", auth, async (req, res) => {
 
     res.status(200).send(overdueTasks);
   } catch (e) {
-    res.status(500);
+    res.status(500).send({ error: "Failed to fetch overdue tasks" });
   }
 });
 
@@ -83,7 +71,7 @@ router.get("/task/upcoming", auth, async (req, res) => {
     const upcomingTasks = await Task.find({
       owner: req.user._id,
       scheduleDate: {
-        $gt: taskUtils.getTodayDate(),
+        $gt: taskUtils.getEndOfToday(),
         $lte: taskUtils.getDateAfterAWeek(),
       },
     });
@@ -104,7 +92,6 @@ router.get("/task", auth, async (req, res) => {
 
   try {
     const tasks = await Task.find(query, null, { sort: { createdAt: 1 } });
-    if (!tasks) return res.status(404).send();
     res.send(tasks);
   } catch (e) {
     res.status(500).send(e);
