@@ -80,7 +80,7 @@ taskSchema.pre("save", async function () {
 
     // If this is an update (not a brand new task), find the previous tags
     if (!task.isNew) {
-      oldTags = await Task.findById(task._id, { tags: 1 });
+      oldTags = (await Task.findById(task._id, { tags: 1 })).tags;
     }
 
     // calculate the difference between new and old tags
