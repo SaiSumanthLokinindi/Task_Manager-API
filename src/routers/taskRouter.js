@@ -18,6 +18,26 @@ router.post("/task", auth, async (req, res) => {
   }
 });
 
+// Add bulk tasks data at once
+router.post("/tasks/bulk", auth, async (req, res) => {
+  try {
+    const tasks = req.body.map((task) => {
+      return { ...task, owner: req.user._id };
+    });
+
+    const savedTasks = await Task.create(tasks);
+    res.send(
+      savedTasks.map((task) =>
+        taskUtils.getTaskData(
+          taskUtils.filterData(["owner", "__v"], task["_doc"]),
+        ),
+      ),
+    );
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
 // Duplicate route removed (merged with line 98)
 
 /**
@@ -163,6 +183,21 @@ router.delete("/task/:id", auth, async (req, res) => {
     });
     if (!task) return res.status(404).send();
     res.send(task);
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
+
+// Bulk delete multiple tasks from given array of ids
+router.delete("/tasks/bulk", auth, async (req, res) => {
+  try {
+    const taskIds = req.body.ids;
+    const result = await Task.deleteMany({
+      _id: { $in: taskIds },
+      owner: req.user._id,
+    });
+
+    res.send({ deleteCount: result.deletedCount });
   } catch (e) {
     res.status(500).send(e);
   }
