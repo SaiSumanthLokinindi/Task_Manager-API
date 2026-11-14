@@ -14,7 +14,8 @@ router.post("/task", auth, async (req, res) => {
       ),
     );
   } catch (e) {
-    res.status(400).send(e);
+    console.error("Error creating task", e);
+    res.status(400).send({ error: "Failed to create task" });
   }
 });
 
@@ -34,7 +35,8 @@ router.post("/tasks/bulk", auth, async (req, res) => {
       ),
     );
   } catch (e) {
-    res.status(400).send(e);
+    console.error("Error creating bulk tasks", e);
+    res.status(400).send({ error: "Failed to create bulk tasks" });
   }
 });
 
@@ -48,10 +50,10 @@ router.post("/tasks/bulk", auth, async (req, res) => {
  */
 router.get("/task/myday", auth, async (req, res) => {
   try {
-    const tasks = await Task.find({
+    const myDayTasks = await Task.find({
       owner: req.user._id,
       $or: [
-        { scheduleDate: { $exists: false } },
+        { scheduleDate: null },
         {
           scheduleDate: {
             $gte: taskUtils.getTodayDate(),
@@ -59,10 +61,12 @@ router.get("/task/myday", auth, async (req, res) => {
           },
         },
       ],
-    });
-    res.send(tasks);
+    }).lean();
+
+    res.status(200).send(taskUtils.formatTaskData(myDayTasks));
   } catch (e) {
-    res.status(500).send(e);
+    console.error("Error fetching my day tasks", e);
+    res.status(500).send({ error: "Failed to fetch my day tasks" });
   }
 });
 
@@ -75,10 +79,11 @@ router.get("/task/overdue", auth, async (req, res) => {
       owner: req.user._id,
       dueDate: { $lt: taskUtils.getTodayDate() },
       "status.completed": false,
-    });
+    }).lean();
 
-    res.status(200).send(overdueTasks);
+    res.status(200).send(taskUtils.formatTaskData(overdueTasks));
   } catch (e) {
+    console.error("Error fetching overdue tasks", e);
     res.status(500).send({ error: "Failed to fetch overdue tasks" });
   }
 });
@@ -94,12 +99,32 @@ router.get("/task/upcoming", auth, async (req, res) => {
         $gt: taskUtils.getEndOfToday(),
         $lte: taskUtils.getDateAfterAWeek(),
       },
-    });
-    res.status(200).send(upcomingTasks);
+    }).lean();
+    res.status(200).send(taskUtils.formatTaskData(upcomingTasks));
   } catch (e) {
-    res.status(500).send({
-      error: e && e.message ? e.message : "Internal Server Error",
-    });
+    console.error("Error fetching upcoming tasks", e);
+    res.status(500).send({ error: "Failed to fetch upcoming tasks" });
+  }
+});
+
+/**
+ * Return recently completed tasks of user sorted by most recently completed
+ */
+router.get("/task/recentlyCompleted", auth, async (req, res) => {
+  try {
+    const recentlyCompletedTasks = await Task.find({
+      owner: req.user._id,
+      "status.completed": { $eq: true },
+    })
+      .sort({
+        "status.completedOn": -1,
+      })
+      .lean();
+
+    res.status(200).send(taskUtils.formatTaskData(recentlyCompletedTasks));
+  } catch (e) {
+    console.error("Error fetching recently completed tasks", e);
+    res.status(500).send({ error: "Failed to fetch recently completed tasks" });
   }
 });
 
@@ -114,7 +139,8 @@ router.get("/task", auth, async (req, res) => {
     const tasks = await Task.find(query, null, { sort: { createdAt: 1 } });
     res.send(tasks);
   } catch (e) {
-    res.status(500).send(e);
+    console.error("Error fetching tasks", e);
+    res.status(500).send({ error: "Failed to fetch tasks" });
   }
 });
 
@@ -124,10 +150,11 @@ router.get("/task/:id", auth, async (req, res) => {
       _id: req.params.id,
       owner: req.user._id,
     });
-    if (!task) return res.status(404).send(task);
+    if (!task) return res.status(404).send();
     res.send(task);
   } catch (e) {
-    res.status(500).send(e);
+    console.error("Error fetching task", e);
+    res.status(500).send({ error: "Failed to fetch task" });
   }
 });
 
@@ -171,7 +198,8 @@ router.patch("/task/:id", auth, async (req, res) => {
     await task.save();
     res.send(task);
   } catch (e) {
-    res.status(500).send(e);
+    console.error("Error updating task", e);
+    res.status(500).send({ error: "Failed to update task" });
   }
 });
 
@@ -184,7 +212,8 @@ router.delete("/task/:id", auth, async (req, res) => {
     if (!task) return res.status(404).send();
     res.send(task);
   } catch (e) {
-    res.status(500).send(e);
+    console.error("Error deleting task", e);
+    res.status(500).send({ error: "Failed to delete task" });
   }
 });
 
@@ -199,7 +228,8 @@ router.delete("/tasks/bulk", auth, async (req, res) => {
 
     res.send({ deleteCount: result.deletedCount });
   } catch (e) {
-    res.status(500).send(e);
+    console.error("Error deleting bulk tasks", e);
+    res.status(500).send({ error: "Failed to delete bulk tasks" });
   }
 });
 

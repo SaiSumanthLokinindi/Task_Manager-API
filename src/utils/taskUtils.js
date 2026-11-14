@@ -45,6 +45,10 @@ const utils = {
         : undefined,
     };
   },
+
+  formatTaskData: function (tasks) {
+    return tasks.map(utils.getTaskData);
+  },
 };
 
 module.exports = utils;
