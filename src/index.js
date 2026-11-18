@@ -1,6 +1,6 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
-require("./db/mongoose");
 const userRouter = require("./routers/userRouter");
 const taskRouter = require("./routers/taskRouter");
 const tagRouter = require("./routers/tagRouter");
@@ -8,7 +8,7 @@ const tagRouter = require("./routers/tagRouter");
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://192.168.0.104:5173"],
+    origin: ["http://localhost:5173", "http://192.168.0.110:5173"],
   }),
 );
 const port = process.env.PORT;
@@ -17,13 +17,29 @@ app.use(express.json());
 
 // Manually increasing latency for testing purposes
 app.use(function (req, res, next) {
-  setTimeout(next, 2000);
+  if (process.env.NODE_ENV === "dev") setTimeout(next, 2000);
+  else next();
 });
 
 app.use(userRouter);
 app.use(taskRouter);
 app.use(tagRouter);
 
-app.listen(port, "0.0.0.0", () => {
-  console.log("Server is running on port", port);
-});
+const startServer = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URL);
+
+    console.log("Connected to MongoDB");
+
+    const PORT = process.env.PORT;
+
+    app.listen(port, "0.0.0.0", () => {
+      console.log("Server is running on port", port);
+    });
+  } catch (err) {
+    console.log("Server startup failed", error);
+    process.exitCode = 1;
+  }
+};
+
+startServer();
