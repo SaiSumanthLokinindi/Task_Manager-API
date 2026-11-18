@@ -11,7 +11,7 @@ app.use(
     origin: [
       "http://127.0.0.1:5173",
       "http://192.168.0.110:5173",
-      "https://taskydoui.taskydo-client.workers.dev/",
+      "https://taskydoui.taskydo-client.workers.dev",
     ],
   }),
 );
