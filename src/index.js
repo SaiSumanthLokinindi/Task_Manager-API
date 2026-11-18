@@ -31,7 +31,6 @@ const startServer = async () => {
     ? process.env.MONGODB_URL_DEV
     : process.env.MONGODB_URL_PROD;
 
-  console.log(mongoDBURL);
   try {
     await mongoose.connect(mongoDBURL, {
       dbName: !isDevENV ? "tasky-do" : "",
