@@ -27,7 +27,9 @@ app.use(tagRouter);
 
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL);
+    await mongoose.connect(process.env.MONGODB_URL, {
+      dbName: process.env.NODE_ENV !== "dev" ? "tasky-do" : "",
+    });
 
     console.log("Connected to MongoDB");
 
